@@ -1,0 +1,272 @@
+namespace ConsoleApp7
+{
+
+    public class kv
+    {
+        public string TemplateKey { get; set; }
+        public string Value { get; set; }
+        public string Xpath { get; set; }
+    }
+
+    internal class Program
+    {
+        static void Main(string[] args)
+        {;
+
+            var list = new List<List<kv>>()
+            {
+                 new List<kv>()
+                 {
+                     new kv { TemplateKey = "A", Value = "AF", Xpath = "path1/path2/path3/a" },
+                     new kv { TemplateKey = "B", Value = "Detail1", Xpath = "path1/path2/path3/b" },
+                     new kv { TemplateKey = "C", Value = "index_0_C", Xpath = "path1/path2/path3/c" },
+                 },
+
+                 new List<kv>()
+                 {
+                     new kv { TemplateKey = "A", Value = "ZZ", Xpath = "path1/path2/path3/a" },
+                     new kv { TemplateKey = "B", Value = "Detail1", Xpath = "path1/path2/path3/b" },
+                     new kv { TemplateKey = "C", Value = "index_1_C", Xpath = "path1/path2/path3/c" },
+                 },
+
+                 new List<kv>()
+                 {
+
+                     new kv { TemplateKey = "A", Value = "AF", Xpath = "path1/path2/path3/a" },
+                     new kv { TemplateKey = "B", Value = "Detail2", Xpath = "path1/path2/path3/b" },
+                     new kv { TemplateKey = "C", Value = "index_2_C", Xpath = "path1/path2/path3/c" },
+                 },
+            };
+
+            // TEST A
+            // Since the first element in array and 3rd element of array falls on grouping 'A' and 'B' it will fall on the same array on the first depth, and it will be in the same level in the second level
+            // Since the second element doesn't fall on the same grouping 'A' it will be in a different group on the first depth, but it falls on the same grouping 'B' as the first element, so it will be in the same level in the second depth
+
+            var test_A = GroupAndAssignXpathIndices(list, new string[] { "A", "B" });
+
+            // Output test_A results
+            Console.WriteLine("test_A results:");
+            for (int i = 0; i < test_A.Count; i++)
+            {
+                Console.WriteLine($"Group {i}:");
+                foreach (var kv in test_A[i])
+                {
+                    Console.WriteLine($"  TemplateKey: {kv.TemplateKey}, Value: {kv.Value}, Xpath: {kv.Xpath}");
+                }
+            }
+            var expectedResult_A = new List<List<kv>>()
+            {
+                 new List<kv>()
+                 {
+                     new kv { TemplateKey = "A", Value = "AF", Xpath = "path1/path2[0]/path3[0]/a" },
+                     new kv { TemplateKey = "B", Value = "Detail1", Xpath = "path1/path2[0]/path3[0]/b" },
+                     new kv { TemplateKey = "C", Value = "index_0_C", Xpath = "path1/path2[0]/path3[0]/c" },
+                 },
+
+                 new List<kv>()
+                 {
+                     new kv { TemplateKey = "A", Value = "ZZ", Xpath = "path1/path2[0]/path3[0]/a" },
+                     new kv { TemplateKey = "B", Value = "Detail1", Xpath = "path1/path2[0]/path3[0]/b" },
+                     new kv { TemplateKey = "C", Value = "index_1_C", Xpath = "path1/path2[0]/path3[0]/c" },
+                 },
+
+                 new List<kv>()
+                 {
+
+                     new kv { TemplateKey = "A", Value = "AF", Xpath = "path1/path2[0]/path3[1]/a" },
+                     new kv { TemplateKey = "B", Value = "Detail2", Xpath = "path1/path2[0]/path3[1]/b" },
+                     new kv { TemplateKey = "C", Value = "index_2_C", Xpath = "path1/path2[0]/path3[1]/c" },
+                 },
+            };
+
+            // TEST A
+            // Since the first element in array and 3rd element of array falls on grouping 'A' and 'B' it will fall on the same array on the first depth, and it will be in the same level in the second level
+            // Since the second element doesn't fall on the same grouping 'A' it will be in a different group on the first depth, but it falls on the same grouping 'B' as the first element, so it will be in the same level in the second depth
+
+
+
+            var test_B = GroupAndAssignXpathIndices(list, new string[] { "A" });
+
+            Console.WriteLine("test_B results:");
+            for (int i = 0; i < test_B.Count; i++)
+            {
+                Console.WriteLine($"Group {i}:");
+                foreach (var kv in test_B[i])
+                {
+                    Console.WriteLine($"  TemplateKey: {kv.TemplateKey}, Value: {kv.Value}, Xpath: {kv.Xpath}");
+                }
+            }
+
+            var expectedResult_B = new List<List<kv>>()
+            {
+                 new List<kv>()
+                 {
+                     new kv { TemplateKey = "A", Value = "AF", Xpath = "path1/path2/path3[0]/a" },
+                     new kv { TemplateKey = "B", Value = "Detail1", Xpath = "path1/path2/path3[0]/b" },
+                     new kv { TemplateKey = "C", Value = "index_0_C", Xpath = "path1/path2/path3[0]/c" },
+                 },
+
+                 new List<kv>()
+                 {
+                     new kv { TemplateKey = "A", Value = "ZZ", Xpath = "path1/path2/path3[1]/a" },
+                     new kv { TemplateKey = "B", Value = "Detail1", Xpath = "path1/path2/path3[1]/b" },
+                     new kv { TemplateKey = "C", Value = "index_1_C", Xpath = "path1/path2/path3[1]/c" },
+                 },
+
+                 new List<kv>()
+                 {
+
+                     new kv { TemplateKey = "A", Value = "AF", Xpath = "path1/path2[0]/path3[2]/a" },
+                     new kv { TemplateKey = "B", Value = "Detail2", Xpath = "path1/path2[0]/path3[2]/b" },
+                     new kv { TemplateKey = "C", Value = "index_2_C", Xpath = "path1/path2[0]/path3[2]/c" },
+                 },
+            };
+
+            // TEST B
+            // Since the grouping only have 1 grouped, that means xpath indices will only be assigned on the first depth level. 
+            // If the grouping array only have 1 element, we don't need to group it. Just iterate the elements and assign the xpath indices based on the first depth level grouping
+        }
+
+        public static List<List<kv>> GroupAndAssignXpathIndices(List<List<kv>> inputList, string[] depthLevels)
+        {
+            // Create a copy of the input to avoid modifying the original
+            var workingList = inputList.Select(list => list.Select(item => new kv
+            {
+                TemplateKey = item.TemplateKey,
+                Value = item.Value,
+                Xpath = item.Xpath
+            }).ToList()).ToList();
+
+            // If only one depth level, use simple sequential indexing
+            if (depthLevels.Length == 1)
+            {
+                for (int i = 0; i < workingList.Count; i++)
+                {
+                    foreach (var item in workingList[i])
+                    {
+                        string[] pathParts = item.Xpath.Split('/');
+                        int segmentIndex = pathParts.Length - 2; // Second to last segment
+
+                        if (segmentIndex >= 0 && segmentIndex < pathParts.Length)
+                        {
+                            string segment = pathParts[segmentIndex];
+                            int bracketIndex = segment.IndexOf('[');
+                            if (bracketIndex >= 0)
+                            {
+                                segment = segment.Substring(0, bracketIndex);
+                            }
+                            pathParts[segmentIndex] = $"{segment}[{i}]";
+                            item.Xpath = string.Join("/", pathParts);
+                        }
+                    }
+                }
+                return workingList;
+            }
+
+            // For multiple depth levels, use hierarchical grouping
+            var hierarchicalGroups = BuildHierarchicalGroups(workingList, depthLevels);
+            AssignXPathIndices(workingList, hierarchicalGroups, depthLevels);
+
+            return workingList;
+        }
+
+        private static Dictionary<string, object> BuildHierarchicalGroups(List<List<kv>> workingList, string[] depthLevels)
+        {
+            return BuildGroupsRecursive(workingList, depthLevels, 0, Enumerable.Range(0, workingList.Count).ToList());
+        }
+
+        private static Dictionary<string, object> BuildGroupsRecursive(List<List<kv>> workingList, string[] depthLevels, int currentDepth, List<int> indices)
+        {
+            var result = new Dictionary<string, object>();
+
+            if (currentDepth >= depthLevels.Length)
+            {
+                return new Dictionary<string, object> { { "indices", indices } };
+            }
+
+            string currentKey = depthLevels[currentDepth];
+            var groups = new Dictionary<string, List<int>>();
+
+            foreach (int index in indices)
+            {
+                var item = workingList[index].FirstOrDefault(x => x.TemplateKey == currentKey);
+                if (item != null)
+                {
+                    if (!groups.ContainsKey(item.Value))
+                    {
+                        groups[item.Value] = new List<int>();
+                    }
+                    groups[item.Value].Add(index);
+                }
+            }
+
+            foreach (var group in groups)
+            {
+                result[group.Key] = BuildGroupsRecursive(workingList, depthLevels, currentDepth + 1, group.Value);
+            }
+
+            return result;
+        }
+
+        private static void AssignXPathIndices(List<List<kv>> workingList, Dictionary<string, object> hierarchicalGroups, string[] depthLevels)
+        {
+            AssignIndicesRecursive(workingList, hierarchicalGroups, depthLevels, 0, new int[depthLevels.Length]);
+        }
+
+        private static void AssignIndicesRecursive(List<List<kv>> workingList, Dictionary<string, object> groups, string[] depthLevels, int currentDepth, int[] pathIndices)
+        {
+            if (groups.ContainsKey("indices"))
+            {
+                var indices = (List<int>)groups["indices"];
+                foreach (int listIndex in indices)
+                {
+                    foreach (var item in workingList[listIndex])
+                    {
+                        string[] pathParts = item.Xpath.Split('/');
+
+                        // Apply all path indices
+                        for (int i = 0; i < depthLevels.Length; i++)
+                        {
+                            int segmentIndex = pathParts.Length - depthLevels.Length - 1 + i;
+                            if (segmentIndex >= 0 && segmentIndex < pathParts.Length)
+                            {
+                                string segment = pathParts[segmentIndex];
+                                int bracketIndex = segment.IndexOf('[');
+                                if (bracketIndex >= 0)
+                                {
+                                    segment = segment.Substring(0, bracketIndex);
+                                }
+                                pathParts[segmentIndex] = $"{segment}[{pathIndices[i]}]";
+                            }
+                        }
+
+                        item.Xpath = string.Join("/", pathParts);
+                    }
+                }
+                return;
+            }
+
+            int groupIndex = 0;
+            foreach (var group in groups)
+            {
+                pathIndices[currentDepth] = groupIndex;
+                AssignIndicesRecursive(workingList, (Dictionary<string, object>)group.Value, depthLevels, currentDepth + 1, pathIndices);
+                groupIndex++;
+            }
+        }
+
+
+
+        public class RowSet
+        {
+            public List<Column> Columns { get; set; }
+        }
+
+        public class Column
+        {
+            public int Groupings { get; set; }
+            public string ColumnName { get; set; }
+            public int Value { get; set; }
+        }
+    }
+}
