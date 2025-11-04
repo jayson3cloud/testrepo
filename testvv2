@@ -1,0 +1,69 @@
+ public static void GroupAndAssignXpathWithinSingleRow(List<List<kv>> list)
+ {
+     for (int rowIndex = 0; rowIndex < list.Count; rowIndex++)
+     {
+         var row = list[rowIndex];
+
+         // Group by xpath depth and process from deepest to shallowest
+         var xpathGroups = row.GroupBy(kv => kv.Xpath.Split('/').Length)
+                             .OrderByDescending(g => g.Key)
+                             .ToList();
+         var iterations = new Queue<int>(xpathGroups.Select(i => i.Key).OrderBy(s => s));
+
+
+         var minimumNode = iterations.Min();
+         var parentNode = 0;
+
+
+
+         while (iterations.Count > 0)
+         {
+             var currrentIteration = iterations.Dequeue();
+             var groupsToProcess = xpathGroups.Where(i => i.Key >= currrentIteration).ToList();
+
+             if (parentNode == 0)
+             {
+                 var splittedPath = groupsToProcess.First().First().Xpath.Split('/');
+                 parentNode = splittedPath.Length - 1;
+             }
+
+
+             if (currrentIteration == minimumNode)
+             {
+                 foreach (var groups in groupsToProcess)
+                 {
+                     foreach (var item in groups)
+                     {
+                         var splittedPath = item.Xpath.Split('/').ToList();
+
+                         splittedPath[parentNode - 2] = splittedPath[parentNode - 2] + $"[{rowIndex}]";
+                         item.Xpath = string.Join("/", splittedPath);
+                     }
+                 }
+             }
+             else
+             {
+                 foreach (var groups in groupsToProcess)
+                 {
+                     var gByXpath = groups.GroupBy(i => i.Xpath).ToList();
+
+
+                     foreach (var item in gByXpath)
+                     {
+                         var c = item.ToList();
+                         for (int e = 0; e < c.Count; e++)
+                         {
+                             var splittedPath = c[e].Xpath.Split('/').ToList();
+                             var bracketIndexAdjustment = (currrentIteration - parentNode) + parentNode;
+
+
+                             splittedPath[bracketIndexAdjustment - 2] = splittedPath[bracketIndexAdjustment - 2] + $"[{e}]";
+                             c[e].Xpath = string.Join("/", splittedPath);
+
+                         }
+                     }
+                 }
+             }
+         }
+     }
+ }
