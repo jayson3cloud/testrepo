@@ -1,0 +1,61 @@
+public static void GroupAndAssignXpathWithinSingleRow2(List<List<kv>> list)
+{
+    for (int rowIndex = 0; rowIndex < list.Count; rowIndex++)
+    {
+        var row = list[rowIndex];
+
+        // Group by xpath depth and process from deepest to shallowest
+        var xpathGroups = row.GroupBy(kv => kv.Xpath.Split('/').Length)
+                            .OrderBy(g => g.Key)
+                            .ToList();
+
+        var iterations = new Queue<int>(xpathGroups.Select(i => i.Key).OrderBy(s => s));
+
+        iterations.Dequeue();
+
+        var minimumNode = xpathGroups.Min(i => i.Key);
+
+
+        // Set minimum for root nodes
+
+
+        foreach (var xpath in row)
+        {
+            var splittedPath = xpath.Xpath.Split('/').ToList();
+
+            splittedPath[minimumNode - 2] = splittedPath[minimumNode - 2] + $"[{rowIndex}]";
+            xpath.Xpath = string.Join("/", splittedPath);
+        }
+
+
+        while (iterations.Count > 0)
+        {
+            var ite = iterations.Dequeue();
+
+            var withChildren = xpathGroups.Where(i => i.Key >= ite).ToList();
+
+
+            foreach (var item in withChildren)
+            {
+                var groupBy = item.GroupBy(i => i.Xpath.Split('/')[ite - 1]).ToList();
+
+                foreach (var item2 in groupBy)
+                {
+
+                    var cc = item2.ToList();
+
+                    for (int i = 0; i < cc.Count; i++)
+                    {
+                        var xpath = cc[i];
+                        var splittedPath = xpath.Xpath.Split('/').ToList();
+
+                        splittedPath[ite - 2] = splittedPath[ite - 2] + $"[{i}]";
+                        xpath.Xpath = string.Join("/", splittedPath);
+                    }
+                }
+            }
+
+        }
+
+    }
+}
